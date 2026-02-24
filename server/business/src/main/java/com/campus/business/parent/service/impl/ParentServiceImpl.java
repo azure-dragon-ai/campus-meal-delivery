@@ -11,11 +11,15 @@ import com.campus.core.util.PasswordUtil;
 import com.campus.database.entity.BizClass;
 import com.campus.database.entity.BizDiner;
 import com.campus.database.entity.BizLeave;
+import com.campus.database.entity.BizMealRegistration;
 import com.campus.database.entity.BizParent;
+import com.campus.database.entity.BizSemester;
 import com.campus.database.mapper.BizClassMapper;
 import com.campus.database.mapper.BizDinerMapper;
 import com.campus.database.mapper.BizLeaveMapper;
+import com.campus.database.mapper.BizMealRegistrationMapper;
 import com.campus.database.mapper.BizParentMapper;
+import com.campus.database.mapper.BizSemesterMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,8 @@ public class ParentServiceImpl implements ParentService {
     private final BizDinerMapper bizDinerMapper;
     private final BizLeaveMapper bizLeaveMapper;
     private final BizClassMapper bizClassMapper;
+    private final BizMealRegistrationMapper bizMealRegistrationMapper;
+    private final BizSemesterMapper bizSemesterMapper;
 
     @Override
     public String login(ParentLoginRequest request) {
@@ -259,5 +265,123 @@ public class ParentServiceImpl implements ParentService {
         if (status == 1) return "通过";
         if (status == 2) return "拒绝";
         return "未知";
+    }
+
+    @Override
+    public PageResult<MealRegistrationVO> getMealRegistrations(Long parentId, Integer page, Integer size, Long semesterId) {
+        // 获取家长的就餐人 ID 列表
+        List<Long> dinerIds = bizDinerMapper.selectList(new LambdaQueryWrapper<BizDiner>()
+                        .eq(BizDiner::getParentId, parentId))
+                .stream().map(BizDiner::getId).collect(Collectors.toList());
+
+        if (dinerIds.isEmpty()) {
+            return PageResult.of(new ArrayList<>(), 0L, size, page);
+        }
+
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<BizMealRegistration> regPage =
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size);
+        LambdaQueryWrapper<BizMealRegistration> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(BizMealRegistration::getDinerId, dinerIds);
+        if (semesterId != null) {
+            wrapper.eq(BizMealRegistration::getSemesterId, semesterId);
+        }
+        wrapper.orderByDesc(BizMealRegistration::getCreateTime);
+
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<BizMealRegistration> result =
+            bizMealRegistrationMapper.selectPage(regPage, wrapper);
+
+        List<MealRegistrationVO> records = result.getRecords().stream().map(reg -> {
+            MealRegistrationVO vo = new MealRegistrationVO();
+            vo.setId(reg.getId());
+            vo.setSemesterId(reg.getSemesterId());
+            vo.setDinerId(reg.getDinerId());
+            vo.setDinerName(reg.getDinerName());
+            vo.setIdCard(reg.getIdCard());
+            vo.setPhone(reg.getPhone());
+            vo.setSchoolId(reg.getSchoolId());
+            vo.setClassId(reg.getClassId());
+            vo.setIsEat(reg.getIsEat());
+            vo.setIsEatName(reg.getIsEat() == 1 ? "是" : "否");
+            vo.setRemark(reg.getRemark());
+            vo.setCreateTime(reg.getCreateTime());
+            return vo;
+        }).collect(Collectors.toList());
+
+        return PageResult.of(records, result.getTotal(), size, page);
+    }
+
+    @Override
+    @Transactional
+    public Long createMealRegistration(Long parentId, CreateMealRegistrationRequest request) {
+        // 检查就餐人是否属于当前家长
+        BizDiner diner = bizDinerMapper.selectById(request.getDinerId());
+        if (diner == null) {
+            throw new BusinessException("就餐人不存在");
+        }
+        if (!diner.getParentId().equals(parentId)) {
+            throw new BusinessException("无权操作该就餐人");
+        }
+
+        // 检查是否已存在
+        BizMealRegistration exist = bizMealRegistrationMapper.selectOne(new LambdaQueryWrapper<BizMealRegistration>()
+                .eq(BizMealRegistration::getSemesterId, request.getSemesterId())
+                .eq(BizMealRegistration::getDinerId, request.getDinerId()));
+        if (exist != null) {
+            throw new BusinessException("该就餐人在本学期的登记已存在");
+        }
+
+        BizMealRegistration reg = new BizMealRegistration();
+        reg.setSemesterId(request.getSemesterId());
+        reg.setDinerId(request.getDinerId());
+        reg.setSchoolId(request.getSchoolId());
+        reg.setClassId(request.getClassId());
+        reg.setDinerName(request.getDinerName());
+        reg.setIdCard(request.getIdCard());
+        reg.setPhone(request.getPhone());
+        reg.setIsEat(request.getIsEat());
+        reg.setRemark(request.getRemark());
+
+        bizMealRegistrationMapper.insert(reg);
+        return reg.getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateMealRegistration(Long id, CreateMealRegistrationRequest request) {
+        BizMealRegistration reg = bizMealRegistrationMapper.selectById(id);
+        if (reg == null) {
+            throw new BusinessException("配餐登记不存在");
+        }
+
+        reg.setDinerName(request.getDinerName());
+        reg.setIdCard(request.getIdCard());
+        reg.setPhone(request.getPhone());
+        reg.setIsEat(request.getIsEat());
+        reg.setRemark(request.getRemark());
+
+        bizMealRegistrationMapper.updateById(reg);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMealRegistration(Long id) {
+        bizMealRegistrationMapper.deleteById(id);
+    }
+
+    @Override
+    public List<SemesterVO> getSemesters() {
+        List<BizSemester> semesters = bizSemesterMapper.selectList(new LambdaQueryWrapper<BizSemester>()
+                .eq(BizSemester::getStatus, 1)
+                .orderByDesc(BizSemester::getCreateTime));
+        return semesters.stream().map(semester -> {
+            SemesterVO vo = new SemesterVO();
+            vo.setId(semester.getId());
+            vo.setName(semester.getName());
+            vo.setStartDate(semester.getStartDate());
+            vo.setEndDate(semester.getEndDate());
+            vo.setStatus(semester.getStatus());
+            vo.setIsCurrent(semester.getIsCurrent());
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

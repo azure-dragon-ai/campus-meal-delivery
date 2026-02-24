@@ -9,3 +9,8 @@ export function deleteDiner(id) { return request({ url: `/parent/diners/${id}`, 
 export function getLeaves(params) { return request({ url: '/parent/leaves', method: 'get', params }) }
 export function createLeave(data) { return request({ url: '/parent/leaves', method: 'post', data }) }
 export function cancelLeave(id) { return request({ url: `/parent/leaves/${id}/cancel`, method: 'post' }) }
+export function getMealRegistrations(params) { return request({ url: '/parent/meal-registrations', method: 'get', params }) }
+export function createMealRegistration(data) { return request({ url: '/parent/meal-registrations', method: 'post', data }) }
+export function updateMealRegistration(id, data) { return request({ url: `/parent/meal-registrations/${id}`, method: 'put', data }) }
+export function deleteMealRegistration(id) { return request({ url: `/parent/meal-registrations/${id}`, method: 'delete' }) }
+export function getSemesters() { return request({ url: '/parent/semesters', method: 'get' }) }

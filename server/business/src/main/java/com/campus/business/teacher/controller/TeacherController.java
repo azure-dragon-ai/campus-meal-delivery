@@ -75,4 +75,26 @@ public class TeacherController {
         teacherService.auditLeave(id, status, remark);
         return Result.success();
     }
+
+    /**
+     * 创建食谱
+     */
+    @PostMapping("/recipes")
+    public Result<Long> createRecipe(
+            @RequestAttribute("userId") Long teacherId,
+            @Valid @RequestBody TeacherCreateRecipeRequest request) {
+        return Result.success(teacherService.createRecipe(teacherId, request));
+    }
+
+    /**
+     * 获取食谱列表
+     */
+    @GetMapping("/recipes")
+    public Result<PageResult<RecipeVO>> getRecipes(
+            @RequestAttribute("userId") Long teacherId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Integer weekDay) {
+        return Result.success(teacherService.getRecipeList(teacherId, page, size, weekDay));
+    }
 }

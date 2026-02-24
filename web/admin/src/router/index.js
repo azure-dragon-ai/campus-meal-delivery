@@ -71,6 +71,24 @@ const routes = [
         name: 'LeaveList',
         component: () => import('@/views/leave/LeaveList.vue'),
         meta: { title: '请假管理' }
+      },
+      {
+        path: 'semester/list',
+        name: 'SemesterList',
+        component: () => import('@/views/semester/SemesterList.vue'),
+        meta: { title: '学期管理' }
+      },
+      {
+        path: 'meal-reg/list',
+        name: 'MealRegList',
+        component: () => import('@/views/meal-reg/MealRegList.vue'),
+        meta: { title: '配餐登记管理' }
+      },
+      {
+        path: 'recipe/list',
+        name: 'RecipeList',
+        component: () => import('@/views/recipe/RecipeList.vue'),
+        meta: { title: '食谱管理' }
       }
     ]
   }

@@ -54,4 +54,29 @@ public interface ParentService {
      * 取消请假
      */
     void cancelLeave(Long leaveId);
+
+    /**
+     * 获取配餐登记列表
+     */
+    PageResult<MealRegistrationVO> getMealRegistrations(Long parentId, Integer page, Integer size, Long semesterId);
+
+    /**
+     * 创建配餐登记
+     */
+    Long createMealRegistration(Long parentId, CreateMealRegistrationRequest request);
+
+    /**
+     * 更新配餐登记
+     */
+    void updateMealRegistration(Long id, CreateMealRegistrationRequest request);
+
+    /**
+     * 删除配餐登记
+     */
+    void deleteMealRegistration(Long id);
+
+    /**
+     * 获取学期列表
+     */
+    List<SemesterVO> getSemesters();
 }

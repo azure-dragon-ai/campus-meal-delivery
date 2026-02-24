@@ -39,4 +39,14 @@ public interface TeacherService {
      * 审核请假
      */
     void auditLeave(Long leaveId, Integer status, String remark);
+
+    /**
+     * 创建食谱
+     */
+    Long createRecipe(Long teacherId, TeacherCreateRecipeRequest request);
+
+    /**
+     * 获取食谱列表
+     */
+    PageResult<RecipeVO> getRecipeList(Long teacherId, Integer page, Integer size, Integer weekDay);
 }

@@ -34,6 +34,12 @@ const routes = [
         name: 'Leaves',
         component: () => import('@/views/Leaves.vue'),
         meta: { title: '请假管理' }
+      },
+      {
+        path: 'recipes',
+        name: 'Recipes',
+        component: () => import('@/views/Recipes.vue'),
+        meta: { title: '食谱管理' }
       }
     ]
   }

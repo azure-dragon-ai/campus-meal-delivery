@@ -8,6 +8,7 @@
           <el-menu-item index="/dashboard"><el-icon><HomeFilled /></el-icon><span>首页</span></el-menu-item>
           <el-menu-item index="/diners"><el-icon><User /></el-icon><span>就餐人管理</span></el-menu-item>
           <el-menu-item index="/leaves"><el-icon><Calendar /></el-icon><span>请假记录</span></el-menu-item>
+          <el-menu-item index="/meal-reg"><el-icon><Food /></el-icon><span>配餐登记</span></el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>

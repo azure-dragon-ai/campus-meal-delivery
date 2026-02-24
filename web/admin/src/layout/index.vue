@@ -52,6 +52,27 @@
             </template>
             <el-menu-item index="/leave/list">请假列表</el-menu-item>
           </el-sub-menu>
+          <el-sub-menu index="semester">
+            <template #title>
+              <el-icon><Calendar /></el-icon>
+              <span>学期管理</span>
+            </template>
+            <el-menu-item index="/semester/list">学期列表</el-menu-item>
+          </el-sub-menu>
+          <el-sub-menu index="meal-reg">
+            <template #title>
+              <el-icon><Food /></el-icon>
+              <span>配餐登记</span>
+            </template>
+            <el-menu-item index="/meal-reg/list">配餐登记列表</el-menu-item>
+          </el-sub-menu>
+          <el-sub-menu index="recipe">
+            <template #title>
+              <el-icon><Menu /></el-icon>
+              <span>食谱管理</span>
+            </template>
+            <el-menu-item index="/recipe/list">食谱列表</el-menu-item>
+          </el-sub-menu>
         </el-menu>
       </el-aside>
       <el-container>

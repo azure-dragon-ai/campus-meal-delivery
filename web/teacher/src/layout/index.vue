@@ -27,6 +27,10 @@
             <el-icon><Calendar /></el-icon>
             <span>请假管理</span>
           </el-menu-item>
+          <el-menu-item index="/recipes">
+            <el-icon><Menu /></el-icon>
+            <span>食谱管理</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>

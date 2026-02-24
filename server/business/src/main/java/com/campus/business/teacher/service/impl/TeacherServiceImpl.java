@@ -11,10 +11,12 @@ import com.campus.core.util.PasswordUtil;
 import com.campus.database.entity.BizClass;
 import com.campus.database.entity.BizDiner;
 import com.campus.database.entity.BizLeave;
+import com.campus.database.entity.BizRecipe;
 import com.campus.database.entity.BizTeacher;
 import com.campus.database.mapper.BizClassMapper;
 import com.campus.database.mapper.BizDinerMapper;
 import com.campus.database.mapper.BizLeaveMapper;
+import com.campus.database.mapper.BizRecipeMapper;
 import com.campus.database.mapper.BizTeacherMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,17 @@ public class TeacherServiceImpl implements TeacherService {
     private final BizClassMapper bizClassMapper;
     private final BizDinerMapper bizDinerMapper;
     private final BizLeaveMapper bizLeaveMapper;
+    private final BizRecipeMapper bizRecipeMapper;
+
+    public TeacherServiceImpl(BizTeacherMapper bizTeacherMapper, BizClassMapper bizClassMapper,
+                              BizDinerMapper bizDinerMapper, BizLeaveMapper bizLeaveMapper,
+                              BizRecipeMapper bizRecipeMapper) {
+        this.bizTeacherMapper = bizTeacherMapper;
+        this.bizClassMapper = bizClassMapper;
+        this.bizDinerMapper = bizDinerMapper;
+        this.bizLeaveMapper = bizLeaveMapper;
+        this.bizRecipeMapper = bizRecipeMapper;
+    }
 
     @Override
     public String login(TeacherLoginRequest request) {
@@ -214,5 +227,77 @@ public class TeacherServiceImpl implements TeacherService {
         if (status == 1) return "通过";
         if (status == 2) return "拒绝";
         return "未知";
+    }
+
+    private static final String[] WEEK_DAY_NAMES = {"", "周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+
+    @Override
+    @Transactional
+    public Long createRecipe(Long teacherId, TeacherCreateRecipeRequest request) {
+        BizTeacher teacher = bizTeacherMapper.selectById(teacherId);
+        if (teacher == null) {
+            throw new BusinessException("教师不存在");
+        }
+
+        // 检查是否已存在
+        BizRecipe exist = bizRecipeMapper.selectOne(new LambdaQueryWrapper<BizRecipe>()
+                .eq(BizRecipe::getSchoolId, request.getSchoolId())
+                .eq(BizRecipe::getDate, request.getDate()));
+        if (exist != null) {
+            throw new BusinessException("该日期的食谱已存在");
+        }
+
+        BizRecipe recipe = new BizRecipe();
+        recipe.setSemesterId(1L); // TODO: 从当前学期获取
+        recipe.setSchoolId(request.getSchoolId());
+        recipe.setDate(request.getDate());
+        recipe.setWeekDay(request.getWeekDay());
+        recipe.setLunchMenu(request.getLunchMenu());
+        recipe.setLunchMenuWithWeight(request.getLunchMenuWithWeight());
+        recipe.setDinnerMenu(request.getDinnerMenu());
+        recipe.setDinnerMenuWithWeight(request.getDinnerMenuWithWeight());
+        recipe.setCreateBy(teacherId);
+        recipe.setCreateName(teacher.getName());
+
+        bizRecipeMapper.insert(recipe);
+        return recipe.getId();
+    }
+
+    @Override
+    public PageResult<RecipeVO> getRecipeList(Long teacherId, Integer page, Integer size, Integer weekDay) {
+        BizTeacher teacher = bizTeacherMapper.selectById(teacherId);
+        if (teacher == null || teacher.getSchoolId() == null) {
+            return PageResult.of(new ArrayList<>(), 0L, size, page);
+        }
+
+        Page<BizRecipe> recipePage = new Page<>(page, size);
+        LambdaQueryWrapper<BizRecipe> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BizRecipe::getSchoolId, teacher.getSchoolId());
+        if (weekDay != null) {
+            wrapper.eq(BizRecipe::getWeekDay, weekDay);
+        }
+        wrapper.orderByDesc(BizRecipe::getDate);
+
+        Page<BizRecipe> result = bizRecipeMapper.selectPage(recipePage, wrapper);
+
+        List<RecipeVO> records = result.getRecords().stream().map(recipe -> {
+            RecipeVO vo = new RecipeVO();
+            vo.setId(recipe.getId());
+            vo.setSemesterId(recipe.getSemesterId());
+            vo.setSchoolId(recipe.getSchoolId());
+            vo.setDate(recipe.getDate());
+            vo.setWeekDay(recipe.getWeekDay());
+            vo.setWeekDayName(WEEK_DAY_NAMES[recipe.getWeekDay()]);
+            vo.setLunchMenu(recipe.getLunchMenu());
+            vo.setLunchMenuWithWeight(recipe.getLunchMenuWithWeight());
+            vo.setDinnerMenu(recipe.getDinnerMenu());
+            vo.setDinnerMenuWithWeight(recipe.getDinnerMenuWithWeight());
+            vo.setCreateBy(recipe.getCreateBy());
+            vo.setCreateName(recipe.getCreateName());
+            vo.setCreateTime(recipe.getCreateTime());
+            return vo;
+        }).collect(Collectors.toList());
+
+        return PageResult.of(records, result.getTotal(), size, page);
     }
 }

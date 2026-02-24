@@ -27,3 +27,11 @@ export function auditLeave(id, status, remark) {
     params: { status, remark }
   })
 }
+
+export function createRecipe(data) {
+  return request({ url: '/teacher/recipes', method: 'post', data })
+}
+
+export function getRecipes(params) {
+  return request({ url: '/teacher/recipes', method: 'get', params })
+}

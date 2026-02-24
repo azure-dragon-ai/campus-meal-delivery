@@ -11,7 +11,8 @@ const routes = [
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/Dashboard.vue'), meta: { title: '首页' } },
       { path: 'diners', name: 'Diners', component: () => import('@/views/Diners.vue'), meta: { title: '就餐人管理' } },
-      { path: 'leaves', name: 'Leaves', component: () => import('@/views/Leaves.vue'), meta: { title: '请假记录' } }
+      { path: 'leaves', name: 'Leaves', component: () => import('@/views/Leaves.vue'), meta: { title: '请假记录' } },
+      { path: 'meal-reg', name: 'MealReg', component: () => import('@/views/MealReg.vue'), meta: { title: '配餐登记' } }
     ]
   }
 ]

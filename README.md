@@ -57,6 +57,9 @@ campus-meal-delivery/
 - 家长管理
 - 就餐人管理
 - 请假管理
+- **学期管理**（新增）
+- **配餐登记管理**（新增）
+- **食谱管理**（新增）
 - 数据表管理（增删改查、导出）
 
 ### 教师系统
@@ -65,12 +68,14 @@ campus-meal-delivery/
 - 查询就餐人请假信息
 - 导出就餐人信息
 - 导出请假信息
+- **食谱管理**（新增）：添加食谱、查看食谱列表
 
 ### 家长系统
 - 登录/注册（手机号 + 密码）
 - 新建就餐人
 - 更新就餐人信息
 - 请假管理
+- **配餐登记**（新增）：登记是否在校吃配餐
 
 ## 快速开始
 
@@ -124,6 +129,9 @@ Authorization: Bearer <token>
 | /api/admin/{id} | PUT | 更新管理员 |
 | /api/admin/{id} | DELETE | 删除管理员 |
 | /api/admin/{id}/password | PUT | 重置密码 |
+| /api/semester/** | GET/POST/PUT/DELETE | 学期管理 |
+| /api/meal-reg/** | GET/POST/PUT/DELETE | 配餐登记管理 |
+| /api/recipe/** | GET/POST/PUT/DELETE | 食谱管理 |
 
 ### 教师系统接口
 | 接口 | 方法 | 描述 |
@@ -134,19 +142,19 @@ Authorization: Bearer <token>
 | /api/teacher/diners | GET | 获取班级就餐人 |
 | /api/teacher/leaves | GET | 获取请假列表 |
 | /api/teacher/leaves/{id}/audit | POST | 审核请假 |
+| /api/teacher/recipes | GET/POST | 食谱管理 |
 
 ### 家长系统接口
 | 接口 | 方法 | 描述 |
 |------|------|------|
 | /api/parent/login | POST | 家长登录 |
 | /api/parent/register | POST | 家长注册 |
-| /api/parent/diners | GET | 获取就餐人列表 |
-| /api/parent/diners | POST | 创建就餐人 |
-| /api/parent/diners/{id} | PUT | 更新就餐人 |
-| /api/parent/diners/{id} | DELETE | 删除就餐人 |
-| /api/parent/leaves | GET | 获取请假列表 |
-| /api/parent/leaves | POST | 创建请假 |
+| /api/parent/diners | GET/POST | 就餐人管理 |
+| /api/parent/diners/{id} | PUT/DELETE | 更新/删除就餐人 |
+| /api/parent/leaves | GET/POST | 请假管理 |
 | /api/parent/leaves/{id}/cancel | POST | 取消请假 |
+| /api/parent/meal-registrations | GET/POST/PUT/DELETE | 配餐登记管理 |
+| /api/parent/semesters | GET | 获取学期列表 |
 
 ## 注意事项
 

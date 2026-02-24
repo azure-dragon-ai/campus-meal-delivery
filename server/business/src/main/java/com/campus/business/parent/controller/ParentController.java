@@ -103,4 +103,54 @@ public class ParentController {
         parentService.cancelLeave(id);
         return Result.success();
     }
+
+    /**
+     * 获取配餐登记列表
+     */
+    @GetMapping("/meal-registrations")
+    public Result<PageResult<MealRegistrationVO>> getMealRegistrations(
+            @RequestAttribute("userId") Long parentId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Long semesterId) {
+        return Result.success(parentService.getMealRegistrations(parentId, page, size, semesterId));
+    }
+
+    /**
+     * 创建配餐登记
+     */
+    @PostMapping("/meal-registrations")
+    public Result<Long> createMealRegistration(
+            @RequestAttribute("userId") Long parentId,
+            @Valid @RequestBody CreateMealRegistrationRequest request) {
+        return Result.success(parentService.createMealRegistration(parentId, request));
+    }
+
+    /**
+     * 更新配餐登记
+     */
+    @PutMapping("/meal-registrations/{id}")
+    public Result<Void> updateMealRegistration(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateMealRegistrationRequest request) {
+        parentService.updateMealRegistration(id, request);
+        return Result.success();
+    }
+
+    /**
+     * 删除配餐登记
+     */
+    @DeleteMapping("/meal-registrations/{id}")
+    public Result<Void> deleteMealRegistration(@PathVariable Long id) {
+        parentService.deleteMealRegistration(id);
+        return Result.success();
+    }
+
+    /**
+     * 获取学期列表
+     */
+    @GetMapping("/semesters")
+    public Result<List<SemesterVO>> getSemesters() {
+        return Result.success(parentService.getSemesters());
+    }
 }

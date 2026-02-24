@@ -191,6 +191,67 @@ CREATE TABLE `biz_leave` (
     KEY `idx_leave_date` (`leave_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='请假表';
 
+-- ========================
+-- 新增业务表（学期、配餐登记、食谱）
+-- ========================
+
+-- 学期表
+DROP TABLE IF EXISTS `biz_semester`;
+CREATE TABLE `biz_semester` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ID',
+    `name` varchar(50) NOT NULL COMMENT '学期名称',
+    `start_date` date NOT NULL COMMENT '开始日期',
+    `end_date` date NOT NULL COMMENT '结束日期',
+    `status` tinyint DEFAULT 1 COMMENT '状态 0-停用 1-启用',
+    `is_current` tinyint DEFAULT 0 COMMENT '是否当前学期 0-否 1-是',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='学期表';
+
+-- 配餐登记表
+DROP TABLE IF EXISTS `biz_meal_registration`;
+CREATE TABLE `biz_meal_registration` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ID',
+    `semester_id` bigint NOT NULL COMMENT '学期 ID',
+    `diner_id` bigint NOT NULL COMMENT '就餐人 ID',
+    `school_id` bigint NOT NULL COMMENT '学校 ID',
+    `class_id` bigint DEFAULT NULL COMMENT '班级 ID',
+    `diner_name` varchar(50) NOT NULL COMMENT '就餐人姓名',
+    `id_card` varchar(18) DEFAULT NULL COMMENT '身份证号',
+    `phone` varchar(20) DEFAULT NULL COMMENT '联系电话',
+    `is_eat` tinyint DEFAULT 1 COMMENT '是否在校吃配餐 0-否 1-是',
+    `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_semester_id` (`semester_id`),
+    KEY `idx_diner_id` (`diner_id`),
+    KEY `idx_school_id` (`school_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='配餐登记表';
+
+-- 食谱表
+DROP TABLE IF EXISTS `biz_recipe`;
+CREATE TABLE `biz_recipe` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ID',
+    `semester_id` bigint NOT NULL COMMENT '学期 ID',
+    `school_id` bigint NOT NULL COMMENT '学校 ID',
+    `date` date NOT NULL COMMENT '日期',
+    `week_day` tinyint NOT NULL COMMENT '星期 1-周一 2-周二 3-周三 4-周四 5-周五 6-周六 7-周日',
+    `lunch_menu` varchar(500) DEFAULT NULL COMMENT '午餐菜谱',
+    `lunch_menu_with_weight` varchar(1000) DEFAULT NULL COMMENT '带量午餐菜谱',
+    `dinner_menu` varchar(500) DEFAULT NULL COMMENT '晚餐菜谱',
+    `dinner_menu_with_weight` varchar(1000) DEFAULT NULL COMMENT '带量晚餐菜谱',
+    `create_by` bigint DEFAULT NULL COMMENT '创建人 ID',
+    `create_name` varchar(50) DEFAULT NULL COMMENT '创建人姓名',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_semester_id` (`semester_id`),
+    KEY `idx_school_id` (`school_id`),
+    KEY `idx_date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='食谱表';
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 初始化数据
@@ -219,4 +280,10 @@ INSERT INTO `sys_menu` (`parent_id`, `name`, `path`, `component`, `icon`, `type`
 (7, '家长管理', '/person/parent', 'person/parent', 'user', 2, 'person:parent:list', 2),
 (7, '就餐人管理', '/person/diner', 'person/diner', 'user', 2, 'person:diner:list', 3),
 (0, '请假管理', '/leave', 'Layout', 'date', 1, NULL, 30),
-(10, '请假列表', '/leave/list', 'leave/list', 'list', 2, 'leave:list', 1);
+(12, '请假列表', '/leave/list', 'leave/list', 'list', 2, 'leave:list', 1),
+(0, '学期管理', '/semester', 'Layout', 'date', 1, NULL, 45),
+(13, '学期列表', '/semester/list', 'semester/list', 'list', 2, 'semester:list', 1),
+(0, '配餐登记', '/meal-reg', 'Layout', 'food', 1, NULL, 35),
+(15, '配餐登记列表', '/meal-reg/list', 'meal-reg/list', 'list', 2, 'meal-reg:list', 1),
+(0, '食谱管理', '/recipe', 'Layout', 'menu', 1, NULL, 36),
+(17, '食谱列表', '/recipe/list', 'recipe/list', 'list', 2, 'recipe:list', 1);
